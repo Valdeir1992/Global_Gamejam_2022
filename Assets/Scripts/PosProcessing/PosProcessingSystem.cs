@@ -9,7 +9,7 @@ public class PosProcessingSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        _file.GetSetting<ColorGrading>().saturation.value = -50;
+        _file.GetSetting<ColorGrading>().saturation.value = -100;
         MessageSystem.Instance.Register(typeof(PersonalityMessage), this.MessageHandler);
 
     }
@@ -44,7 +44,7 @@ public class PosProcessingSystem : MonoBehaviour
         }
         else
         {
-            finalValue = -50;
+            finalValue = -100;
         }
         while (true)
         {

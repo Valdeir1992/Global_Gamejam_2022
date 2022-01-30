@@ -6,8 +6,11 @@ using UnityEngine.UI;
 public class HudPersonalitySystem : MonoBehaviour
 {
     private Vector2 _deafStartPoisiton;
-    private Vector2 _listenerStartPosition; 
+    private Vector2 _listenerStartPosition;
+    private float _timeBar;
     private IEnumerator _coroutine;
+    private IEnumerator _coroutineBar;
+    [SerializeField] private Image _time;
     [SerializeField] private float _totalTime;
     [SerializeField] private Image _deafImage;
     [SerializeField] private Image _listenerImage;
@@ -20,6 +23,7 @@ public class HudPersonalitySystem : MonoBehaviour
 
     private void OnEnable()
     {
+        _time.fillAmount = 0;
         MessageSystem.Instance.Register(typeof(PersonalityMessage), this.MessageHandler);
     }
 
@@ -41,9 +45,31 @@ public class HudPersonalitySystem : MonoBehaviour
             { 
                 _coroutine = Coroutine_Change_Personality();
                 StartCoroutine(_coroutine);
+                if (Object.ReferenceEquals(_coroutineBar, null))
+                {
+                    _coroutineBar = Coroutine_Time_Bar();
+                    StartCoroutine(_coroutineBar);
+                }
             }
         }
         return false;
+    }
+
+    private IEnumerator Coroutine_Time_Bar()
+    { 
+        while (true)
+        {
+            _timeBar += Time.deltaTime; 
+            _time.fillAmount = 1 - (_timeBar / (GameplaySystem.Instance.Data.TranstionTime + GameplaySystem.Instance.Data.PowerTime));
+            if(_time.fillAmount <= 0)
+            {
+                break;
+            }
+            yield return null;
+        }
+        _timeBar = 0;
+        _time.fillAmount = 0;
+        _coroutineBar = null;
     }
 
     private IEnumerator Coroutine_Change_Personality()
@@ -65,7 +91,8 @@ public class HudPersonalitySystem : MonoBehaviour
         float timeElaped = 0;
         while (true)
         {
-            timeElaped += Time.deltaTime;
+            timeElaped += Time.deltaTime; 
+
             _listenerImage.rectTransform.anchoredPosition = Vector2.Lerp(listenerStartPosition, listenerFinalPosition, timeElaped / _totalTime);
             _deafImage.rectTransform.anchoredPosition = Vector2.Lerp(deaftStartPosition, deafFinalPosition, timeElaped / GameplaySystem.Instance.Data.TranstionTime);
             if(timeElaped/ GameplaySystem.Instance.Data.TranstionTime >= 1)
@@ -82,6 +109,7 @@ public class HudPersonalitySystem : MonoBehaviour
             }
             yield return null;
         }
+        _time.fillAmount =0;
         _coroutine = null;
         yield break;
     }

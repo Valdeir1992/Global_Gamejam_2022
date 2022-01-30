@@ -1,13 +1,19 @@
 ﻿using UnityEngine;
 
 public sealed class DefaultMotion : MonoBehaviour, IMotionController
-{
+{ 
     public bool _grounded;
+    private bool _walk;
     private bool _jump;
     private LayerMask _layer;
     private PlayerMediator _player;
     private CharacterController _controller;
     private Vector3 _playerVelocity;
+    private Vector3 _direction;
+
+    public bool Grounded { get => _grounded; }
+
+    public bool Walk { get => _walk; }
 
     private void Awake()
     {
@@ -16,12 +22,12 @@ public sealed class DefaultMotion : MonoBehaviour, IMotionController
 
     private void OnEnable()
     {
-        MessageSystem.Instance.Register(typeof(InputMessage), this.MessageHandler);
+        MessageSystem.Instance.Register(typeof(InputMessage), this.MessageHandler); 
     }
     private void Update()
     { 
         _controller.Move(_playerVelocity * Time.deltaTime);
-        _grounded = Physics.Raycast(transform.position, Vector3.down, 1.25f, ~_layer);
+        _grounded = Physics.Raycast(transform.position, Vector3.down, 0.1f, ~_layer);
         if (_grounded)
         {
             _playerVelocity.y = 0;
@@ -29,42 +35,36 @@ public sealed class DefaultMotion : MonoBehaviour, IMotionController
         else
         { 
             _playerVelocity.y += Physics.gravity.y * Time.deltaTime;
-        } 
-
-    }
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.DrawRay(transform.position, Vector3.down *1.25f);
+        }
+        Move(_direction); 
     }
 
     private void OnDisable()
     {
-        MessageSystem.Instance.UnRegister(typeof(InputMessage), this.MessageHandler);
-    }
+        MessageSystem.Instance.UnRegister(typeof(InputMessage), this.MessageHandler); 
+    } 
     public void Configure(PlayerMediator player)
     {
         _player = player;
-        _controller = gameObject.AddComponent<CharacterController>();
+        _controller = GetComponent<CharacterController>(); 
     }
-
-    private void MoveLeft()
-    {
-        _controller.Move(Vector3.left * Time.deltaTime * _player.Data.Speed);
-        if (_grounded)
-        { 
-            _player.Walk();
-        } 
-    }
-
-    private void MoveRight()
-    {
-        _controller.Move(Vector3.right * Time.deltaTime * _player.Data.Speed);
-        _player.Walk();
+    private void Move(Vector3 direction)
+    { 
+        _controller.Move(direction * Time.deltaTime * _player.Data.Speed);  
         if (_grounded)
         {
-            _player.Walk();
+            _player.Walk(); 
+        } 
+        if(direction.sqrMagnitude > 0)
+        { 
+            _controller.transform.forward = direction;
+            _walk = true;
         }
-    }
+        else
+        {
+            _walk = false;
+        }
+    } 
 
     private void Jump()
     {
@@ -89,11 +89,17 @@ public sealed class DefaultMotion : MonoBehaviour, IMotionController
         {
             switch (iM.Input)
             {
-                case "Left":
-                    MoveLeft();
+                case "Left_Press":
+                    _direction += Vector3.left;
                     break;
-                case "Right":
-                    MoveRight();
+                case "Left_Free":
+                    _direction -= Vector3.left;
+                    break;
+                case "Right_Press":
+                    _direction += Vector3.right;
+                    break;
+                case "Right_Free":
+                    _direction -= Vector3.right;
                     break;
                 case "Jump":
                     Jump();

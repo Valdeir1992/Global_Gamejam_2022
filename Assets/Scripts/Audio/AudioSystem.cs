@@ -6,9 +6,19 @@ public class AudioSystem : MonoBehaviour
 {
     private IEnumerator _coroutine;
     private AudioSource _source;
+    private static AudioSystem _instance;
 
     private void Awake()
     {
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
         _source = GetComponent<AudioSource>();
     }
     private void OnEnable()

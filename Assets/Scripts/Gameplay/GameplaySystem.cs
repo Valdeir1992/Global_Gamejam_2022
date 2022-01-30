@@ -7,8 +7,7 @@ public class GameplaySystem : Singleton<GameplaySystem>
     private Personality _currentPersonality = Personality.LISTENER;
     private bool _transitionPersonality;
     private PlayerMediator _currentPlayer;
-    [SerializeField] private GameplayData _data;
-    [SerializeField] private PlayerMediator _deafPrefab;
+    [SerializeField] private GameplayData _data; 
     [SerializeField] private PlayerMediator _listenerPrefab;
 
     public GameplayData Data { get => _data; }
@@ -21,9 +20,13 @@ public class GameplaySystem : Singleton<GameplaySystem>
 
     private void SpawnPlayer()
     {
+        if (!Object.ReferenceEquals(_currentPlayer, null))
+        { 
+            Destroy(_currentPlayer.gameObject);
+        } 
         _currentPlayer = Instantiate(_listenerPrefab,
             FindObjectOfType<StartPosition>().SpawnPoint,
-            Quaternion.identity);
+            Quaternion.Euler(new Vector3(0,90,0)));
 
         SetCinemachineCamera();
     }
@@ -52,6 +55,9 @@ public class GameplaySystem : Singleton<GameplaySystem>
             {
                 Change();
                 Invoke("Change", _data.PowerTime);
+            }else if(gM.Action == GameplayAction.RESPAWN)
+            {
+                SpawnPlayer();
             }
         }
         return false;
@@ -67,26 +73,11 @@ public class GameplaySystem : Singleton<GameplaySystem>
         {
             _currentPersonality = Personality.DEAF;
         }
-        MessageSystem.Instance.Notify(new PersonalityMessage(Personality.CHANGE));
-        ChangeCharacter();
+        MessageSystem.Instance.Notify(new PersonalityMessage(Personality.CHANGE)); 
         _transitionPersonality = true;
         Invoke("TriggerTransition", _data.TranstionTime + _data.PowerTime);
     }
-
-    private void ChangeCharacter()
-    {
-        Vector3 playerWorldPosition = _currentPlayer.transform.position;
-        Destroy(_currentPlayer.gameObject);
-        if(_currentPersonality == Personality.DEAF)
-        {
-            _currentPlayer = Instantiate(_deafPrefab, playerWorldPosition, Quaternion.identity);
-        }
-        else
-        {
-            _currentPlayer = Instantiate(_listenerPrefab, playerWorldPosition, Quaternion.identity); 
-        }
-        SetCinemachineCamera();
-    }
+     
 
     private void TriggerTransition()
     {
@@ -98,5 +89,6 @@ public enum Personality
 {
     DEAF,
     LISTENER,
-    CHANGE
+    CHANGE,
+    NULL,
 }

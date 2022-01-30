@@ -20,9 +20,16 @@ public sealed class BtnChangePersonality : MonoBehaviour
 public sealed class GameplayerMessage : Message
 {
     public readonly Personality Personality;
+    public readonly GameplayAction Action;
 
     public GameplayerMessage(Personality personality)
     {
         Personality = personality;
+    }
+
+    public GameplayerMessage(GameplayAction action)
+    {
+        Action = action;
+        Personality = Personality.NULL;
     }
 }

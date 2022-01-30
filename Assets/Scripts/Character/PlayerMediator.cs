@@ -8,12 +8,20 @@ public abstract class PlayerMediator : MonoBehaviour
 
     public PlayerData Data { get => _data; } 
     public abstract void Jump(); 
-    public abstract void Walk();
+    public abstract void Walk(); 
 }
 
 public interface IMotionController: IController
 {
-    
+    bool Walk
+    {
+        get;
+    }
+
+    bool Grounded
+    {
+        get;
+    }
 }
 
 public interface IController

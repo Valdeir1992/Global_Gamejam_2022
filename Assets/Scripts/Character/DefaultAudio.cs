@@ -44,6 +44,7 @@ public sealed class DefaultAudio : MonoBehaviour, IAudioController
         if (_elapsedTime <= _stepTime) return;
         _elapsedTime = 0;
 
+        /*
         if(GameplaySystem.Instance.CurrentPersonality == Personality.DEAF)
         {
             Handheld.Vibrate();
@@ -55,6 +56,6 @@ public sealed class DefaultAudio : MonoBehaviour, IAudioController
                 _source.clip = _steps;
             }
             _source.Play();
-        }
+        }*/
     }
 }

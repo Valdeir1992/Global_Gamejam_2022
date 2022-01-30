@@ -52,7 +52,7 @@ public class MessageSystem : Singleton<MessageSystem>
         }
         else
         {
-            List<MessageHandlerDelegate> list = new List<MessageHandlerDelegate>();
+            List<MessageHandlerDelegate> list = new List<MessageHandlerDelegate>(); 
 
             list.Add(message);
 
